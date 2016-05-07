@@ -38,11 +38,41 @@ public class Main {
         		{ _1_1, __1, _3 },
         		{ _1_5,_1_3, __1}
         };
+        FuzzyNum[][] d1 = new FuzzyNum[][] {
+        		{ 	__1, _1_7, _1_3, _1_2 },
+        		{ 	_7, __1,	_3,	_3 	},
+        		{ 	_3,	_1_3, __1, 	_1	},
+        		{ 	_2,	_1_3, _1_1,	__1	}
+        };
+        FuzzyNum[][] d2 = new FuzzyNum[][] {
+        		{ 	__1, _3, _5, _7 },
+        		{ 	_1_3, __1,	_3,	_3 	},
+        		{ 	_1_5,	_1_3, __1, 	_1	},
+        		{ 	_1_7,	_1_3, _1_1,	__1	}
+        };
+        FuzzyNum[][] d3 = new FuzzyNum[][] {
+        		{ 	__1, 	_2, _1_3,	 _3 },
+        		{ 	_1_2, __1,	_1_3,	_1 	},
+        		{ 	_3,		_3, __1, 	_2	},
+        		{ 	_1_3,	_1_1, _1_2,	__1	}
+        };
         
         Matrix Dc0 = new Matrix("Dc", dc, 0);
         Dc0.findW();
+        Matrix D10 = new Matrix("D1", d1, 0);
+        D10.findW();
+        Matrix D20 = new Matrix("D2", d2, 0);
+        D20.findW();
+        Matrix D30 = new Matrix("D3", d3, 0);
+        D30.findW();
         Matrix Dc05 = new Matrix("Dc", dc, 0.5);
         Dc05.findW();
+        Matrix D105 = new Matrix("D1", d1, 0.5);
+        D105.findW();
+        Matrix D205 = new Matrix("D2", d2, 0.5);
+        D205.findW();
+        Matrix D305 = new Matrix("D3", d3, 0.5);
+        D305.findW();
 	}
 }
 
@@ -83,7 +113,7 @@ class InverseTrupFuzzyNum implements FuzzyNum{
 	}
 	
 	public Interval getAlphaInterval(double alpha) {
-		return new Interval(1/(u-alpha*(m2-u)),1/(l+alpha*(m1-l)));
+		return new Interval(1/(u-alpha*(u-m2)),1/(l+alpha*(m1-l)));
 	}
 }
 
@@ -173,7 +203,7 @@ class Matrix {
 		for (int i = 0; i < mass.length; i++ ) {
 			double[] eq1 = new double[eq.length];
 			eq1[i] = 1;
-			constraints.add(new LinearConstraint(eq1, Relationship.LEQ, 0));
+			//constraints.add(new LinearConstraint(eq1, Relationship.LEQ, 0));
 		}
 		
 		SimplexSolver solver = new SimplexSolver();
@@ -183,7 +213,9 @@ class Matrix {
         for (int i = 1; i <= mass.length - 1; i++ ) {
 			for (int j = i+1; j <= mass.length; j++) {
 				mass[i-1][j-1].L *= Math.exp(answer[mass.length+((2*mass.length-i)*(i-1))/2+(j-i)-1]);
-				mass[i-1][j-1].U *= Math.exp(answer[mass.length*(mass.length+1)/2+((2*mass.length-i)*(i-1))/2+(j-i)-1]);	
+				mass[i-1][j-1].U *= Math.exp(answer[mass.length*(mass.length+1)/2+((2*mass.length-i)*(i-1))/2+(j-i)-1]);
+				mass[j-1][i-1].L = 1./mass[i-1][j-1].U;
+				mass[j-1][i-1].U = 1./mass[i-1][j-1].L;
 			}
 		}        
         
